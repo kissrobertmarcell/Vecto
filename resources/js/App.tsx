@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Center, Spinner } from '@chakra-ui/react';
@@ -13,13 +14,21 @@ export default function App() {
     const setUser = useAuthStore((state) => state.setUser);
     const user = useAuthStore((state) => state.user);
 
-    const { isPending } = useQuery({
+    const { data, isPending, isError } = useQuery({
         queryKey: ['auth', 'me'],
         queryFn: fetchCurrentUser,
         retry: false,
-        onSuccess: setUser,
-        onError: () => setUser(null),
+        staleTime: 1000 * 60 * 5,
     });
+
+    // React Query v5: use useEffect instead of onSuccess/onError
+    useEffect(() => {
+        if (data) setUser(data);
+    }, [data, setUser]);
+
+    useEffect(() => {
+        if (isError) setUser(null);
+    }, [isError, setUser]);
 
     if (isPending) {
         return (

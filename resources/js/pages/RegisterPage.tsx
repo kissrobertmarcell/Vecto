@@ -39,14 +39,14 @@ export function RegisterPage() {
     return (
         <VStack minH="100vh" justify="center" p={8}>
             <Box maxW="sm" w="100%">
-                <VStack spacing={8}>
-                    <VStack spacing={2} textAlign="center">
+                <VStack gap={8}>
+                    <VStack gap={2} textAlign="center">
                         <Heading size="xl">Vecto</Heading>
                         <Text color="gray.600">Create your account</Text>
                     </VStack>
 
                     <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-                        <Stack spacing={4}>
+                        <Stack gap={4}>
                             <div>
                                 <label htmlFor="name" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
                                     Full Name

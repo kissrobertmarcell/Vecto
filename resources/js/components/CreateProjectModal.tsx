@@ -1,4 +1,5 @@
-import { Box, Button, Input, Stack, Text, VStack, Dialog, DialogBody, DialogHeader, DialogContent, DialogBackdrop } from '@chakra-ui/react';
+import { Box, Button, Input, Stack, Text } from '@chakra-ui/react';
+import { DialogBackdrop, DialogBody, DialogContent, DialogHeader, DialogRoot } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createProject } from '../api/projects';
@@ -25,23 +26,25 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) {
-            alert('Project name is required');
-            return;
-        }
+        if (!name.trim()) return;
         mutation.mutate();
     };
 
     return (
-        <Dialog open={open} onOpenChange={(details) => !details.open && onClose()}>
+        <DialogRoot open={open} onOpenChange={(d) => !d.open && onClose()}>
             <DialogBackdrop />
             <DialogContent>
-                <DialogHeader>Create a new project</DialogHeader>
-                <DialogBody>
+                <DialogHeader fontSize="lg" fontWeight="semibold">
+                    Create a new project
+                </DialogHeader>
+                <DialogBody pb={6}>
                     <form onSubmit={handleSubmit}>
-                        <Stack spacing={4}>
-                            <div>
-                                <label htmlFor="project-name" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                        <Stack gap={4}>
+                            <Box>
+                                <label
+                                    htmlFor="project-name"
+                                    style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}
+                                >
                                     Project Name
                                 </label>
                                 <Input
@@ -49,11 +52,15 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="My Project"
+                                    autoFocus
                                 />
-                            </div>
+                            </Box>
 
-                            <div>
-                                <label htmlFor="project-description" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                            <Box>
+                                <label
+                                    htmlFor="project-description"
+                                    style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}
+                                >
                                     Description (optional)
                                 </label>
                                 <Input
@@ -62,7 +69,7 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Describe your project"
                                 />
-                            </div>
+                            </Box>
 
                             {mutation.isError && (
                                 <Box bg="red.50" border="1px solid" borderColor="red.200" p={3} rounded="md">
@@ -72,7 +79,7 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                                 </Box>
                             )}
 
-                            <Stack direction="row" spacing={2} pt={4}>
+                            <Stack direction="row" gap={2} pt={2}>
                                 <Button variant="outline" onClick={onClose} flex={1}>
                                     Cancel
                                 </Button>
@@ -80,7 +87,7 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                                     colorPalette="blue"
                                     type="submit"
                                     loading={mutation.isPending}
-                                    disabled={mutation.isPending}
+                                    disabled={mutation.isPending || !name.trim()}
                                     flex={1}
                                 >
                                     Create
@@ -90,6 +97,6 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                     </form>
                 </DialogBody>
             </DialogContent>
-        </Dialog>
+        </DialogRoot>
     );
 }

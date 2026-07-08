@@ -1,13 +1,16 @@
 'use client';
 
-import { Box, Button, Card, Heading, HStack, Stack, Text, VStack } from '@chakra-ui/react';
+import { Badge, Box, Button, HStack, Heading, Stack, Text, VStack } from '@chakra-ui/react';
+import { CardRoot } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { FolderOpen, LogOut, Plus } from 'lucide-react';
 import { getProjects } from '../api/projects';
 import { useAuthStore } from '../store/auth';
 import { logout } from '../api/auth';
 import { CreateProjectModal } from '../components/CreateProjectModal';
+import { SearchPopover } from '../components/SearchPopover';
 
 export function DashboardPage() {
     const navigate = useNavigate();
@@ -30,71 +33,124 @@ export function DashboardPage() {
         }
     };
 
-    const handleProjectClick = (projectId: number) => {
-        navigate(`/projects/${projectId}`);
-    };
-
     return (
         <Box minH="100vh" bg="gray.50">
-            <Box bg="white" borderBottom="1px solid" borderColor="gray.200" p={6}>
+            {/* Header */}
+            <Box bg="white" borderBottom="1px solid" borderColor="gray.200" px={6} py={4}>
                 <HStack justify="space-between">
-                    <VStack align="start" spacing={0}>
-                        <Heading size="lg">Dashboard</Heading>
-                        <Text color="gray.600" fontSize="sm">
-                            Welcome back, {user?.name}
-                        </Text>
-                    </VStack>
-                    <Button variant="outline" onClick={handleLogout} colorPalette="red">
-                        Logout
-                    </Button>
+                    <HStack gap={4}>
+                        <HStack gap={2}>
+                            <Box w={8} h={8} bg="blue.500" rounded="md" display="flex" alignItems="center" justifyContent="center">
+                                <Text color="white" fontWeight="bold" fontSize="sm">V</Text>
+                            </Box>
+                            <Heading size="md" color="gray.900">Vecto</Heading>
+                        </HStack>
+                        <SearchPopover />
+                    </HStack>
+                    <HStack gap={3}>
+                        <HStack gap={2}>
+                            <Box
+                                w={8} h={8} rounded="full" bg="blue.100"
+                                display="flex" alignItems="center" justifyContent="center"
+                            >
+                                <Text fontSize="sm" fontWeight="bold" color="blue.700">
+                                    {user?.name?.charAt(0)?.toUpperCase()}
+                                </Text>
+                            </Box>
+                            <Text fontSize="sm" fontWeight="medium">{user?.name}</Text>
+                        </HStack>
+                        <Button variant="ghost" size="sm" onClick={handleLogout} colorPalette="red">
+                            <LogOut size={16} />
+                            Logout
+                        </Button>
+                    </HStack>
                 </HStack>
             </Box>
 
+            {/* Content */}
             <Box p={6}>
-                <VStack align="start" spacing={6}>
-                    <VStack align="start" w="100%">
-                        <HStack justify="space-between" w="100%">
-                            <Heading size="md">Projects</Heading>
-                            <Button colorPalette="blue" onClick={() => setCreateModalOpen(true)}>
-                                New project
-                            </Button>
-                        </HStack>
-                    </VStack>
+                <VStack align="stretch" gap={6} maxW="900px" mx="auto">
+                    <HStack justify="space-between" align="center">
+                        <VStack align="start" gap={0}>
+                            <Heading size="lg">Projects</Heading>
+                            <Text color="gray.500" fontSize="sm">Welcome back, {user?.name}</Text>
+                        </VStack>
+                        <Button colorPalette="blue" onClick={() => setCreateModalOpen(true)}>
+                            <Plus size={16} />
+                            New Project
+                        </Button>
+                    </HStack>
 
-                    {isLoading && <Text>Loading projects...</Text>}
+                    {isLoading && (
+                        <Box textAlign="center" py={12}>
+                            <Text color="gray.500">Loading projects…</Text>
+                        </Box>
+                    )}
 
                     {error && (
-                        <Box bg="red.50" border="1px solid" borderColor="red.200" p={4} rounded="md" w="100%">
+                        <Box bg="red.50" border="1px solid" borderColor="red.200" p={4} rounded="md">
                             <Text color="red.700">Failed to load projects</Text>
                         </Box>
                     )}
 
                     {projects && projects.length === 0 && (
-                        <Box bg="gray.100" p={12} rounded="md" w="100%" textAlign="center">
-                            <Text color="gray.600" mb={4}>No projects yet. Create one to get started.</Text>
+                        <Box bg="gray.100" p={12} rounded="xl" textAlign="center">
+                            <FolderOpen size={40} color="#9ca3af" style={{ margin: '0 auto 1rem' }} />
+                            <Text color="gray.600" mb={4} fontWeight="medium">
+                                No projects yet. Create one to get started.
+                            </Text>
                             <Button colorPalette="blue" onClick={() => setCreateModalOpen(true)}>
                                 Create your first project
                             </Button>
                         </Box>
                     )}
 
-                    <Stack w="100%" spacing={4}>
+                    <Stack gap={3}>
                         {projects?.map((project) => (
-                            <Card key={project.id} p={4} cursor="pointer" _hover={{ bg: 'gray.100' }} onClick={() => handleProjectClick(project.id)}>
+                            <CardRoot
+                                key={project.id}
+                                p={4}
+                                cursor="pointer"
+                                _hover={{ shadow: 'md', borderColor: 'blue.200' }}
+                                border="1px solid"
+                                borderColor="gray.200"
+                                transition="all 0.15s"
+                                onClick={() => navigate(`/projects/${project.id}`)}
+                            >
                                 <HStack justify="space-between">
-                                    <VStack align="start" spacing={1}>
-                                        <Heading size="sm">{project.name}</Heading>
+                                    <VStack align="start" gap={1}>
+                                        <HStack gap={2}>
+                                            <Heading size="sm">{project.name}</Heading>
+                                            {project.my_role && (
+                                                <Badge colorPalette="blue" size="sm">{project.my_role}</Badge>
+                                            )}
+                                        </HStack>
                                         {project.description && (
                                             <Text color="gray.600" fontSize="sm">
                                                 {project.description}
                                             </Text>
                                         )}
-                                        <Text color="gray.500" fontSize="xs">
-                                            {project.key}
-                                        </Text>
+                                        <HStack gap={3} mt={1}>
+                                            {project.key && (
+                                                <Text color="gray.400" fontSize="xs" fontFamily="mono">
+                                                    {project.key}
+                                                </Text>
+                                            )}
+                                            {project.members_count != null && (
+                                                <Text color="gray.400" fontSize="xs">
+                                                    {project.members_count} member{project.members_count !== 1 ? 's' : ''}
+                                                </Text>
+                                            )}
+                                            {project.tasks_count != null && (
+                                                <Text color="gray.400" fontSize="xs">
+                                                    {project.tasks_count} task{project.tasks_count !== 1 ? 's' : ''}
+                                                </Text>
+                                            )}
+                                        </HStack>
                                     </VStack>
+                                    <Box color="gray.400" fontSize="xl">→</Box>
                                 </HStack>
-                            </Card>
+                            </CardRoot>
                         ))}
                     </Stack>
                 </VStack>
