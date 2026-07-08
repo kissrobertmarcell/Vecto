@@ -1,0 +1,12 @@
+{
+    "agents": [
+        "zed"
+    ],
+    "cloud": false,
+    "guidelines": true,
+    "skills": [
+        "laravel-best-practices",
+        "inertia-react-development",
+        "tailwindcss-development"
+    ]
+}
